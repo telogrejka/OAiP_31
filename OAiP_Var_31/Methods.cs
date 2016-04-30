@@ -407,9 +407,11 @@ namespace OAiP_Var_31
             for (int i = startIndex; i <= endIndex; i++)
             {
                 PrintLine();
-                PrintRow(new string[3] { bankCollection.Collection.ElementAt(i).adress,
+                PrintRow(new string[3] {
+                    bankCollection.Collection.ElementAt(i).adress,
                     bankCollection.Collection.ElementAt(i).depositorsNumber.ToString(),
-                    bankCollection.Collection.ElementAt(i).depositsSum.ToString() });
+                    bankCollection.Collection.ElementAt(i).depositsSum.ToString() 
+                });
             }
             PrintLine();
         }
