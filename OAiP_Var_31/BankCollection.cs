@@ -5,6 +5,9 @@ using System.Xml.Serialization;
 
 namespace OAiP_Var_31
 {
+    /// <summary>
+    /// Коллекция элеметов банка.
+    /// </summary>
     [Serializable]
     public class BankCollection
     {

@@ -3,6 +3,9 @@ using System.Xml.Serialization;
 
 namespace OAiP_Var_31
 {
+    /// <summary>
+    /// Элемент банка.
+    /// </summary>
     [Serializable]
     public class Bank
     {
