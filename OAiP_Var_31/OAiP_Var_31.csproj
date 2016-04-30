@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Bank.cs" />
     <Compile Include="BankCollection.cs" />
+    <Compile Include="Methods.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
