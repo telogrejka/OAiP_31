@@ -4,6 +4,10 @@ namespace OAiP_Var_31
 {
     internal class Program
     {
+        /// <summary>
+        /// Точка входа в программу
+        /// </summary>
+        /// <param name="args">Список аргументов командной строки</param>
         private static void Main(string[] args)
         {
             //Methods.CreateTestFile();
@@ -13,6 +17,9 @@ namespace OAiP_Var_31
             }
         }
 
+        /// <summary>
+        /// Главное меню программы.
+        /// </summary>
         private static void ShowMenu()
         {
             Console.Clear();
