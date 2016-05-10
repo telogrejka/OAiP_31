@@ -22,20 +22,8 @@ namespace OAiP_Var_31
         /// </summary>
         private static void ShowMenu()
         {
-            Console.Clear();
-            Console.WriteLine("Добро пожаловать в <Банки города 1.0>");
-            Console.WriteLine();
-            Console.WriteLine("Выберите один из пунктов меню:");
-            Console.WriteLine("1. Загрузить файл");
-            Console.WriteLine("2. Добавить запись в конец файла");
-            Console.WriteLine("3. Просмотр всех записей");
-            Console.WriteLine("4. Сохранить файл");
-            Console.WriteLine("5. Добавить запись перед выбранной записью");
-            Console.WriteLine("6. Удалить записи начиная с выбранной");
-            Console.WriteLine("7. Рассчет среднего значения");
-            Console.WriteLine("8. О программе");
-            Console.WriteLine("9. Выход");
-            Console.WriteLine();
+            //Methods.CreateTestFile();
+            Methods.PrintMainMenu();
 
             switch (Console.ReadKey(true).Key)
             {

@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace OAiP_Var_31
 {
@@ -13,7 +14,7 @@ namespace OAiP_Var_31
         private static BankCollection bankCollection = null;
         private static string fileName = null;
         private static bool isFileModified = false;
-        private static int tableWidth = 77;
+        private static int tableWidth = Console.WindowWidth - 3;
 
         /// <summary>
         /// Создание тестового файла содержащего массив банков.
@@ -30,6 +31,26 @@ namespace OAiP_Var_31
             string fileData = BankCollection.Serialize(bankCollection);
             Console.WriteLine(fileData);
             File.WriteAllText("brest.xml", fileData);
+        }
+
+        /// <summary>
+        /// Выводит главное меню.
+        /// </summary>
+        public static void PrintMainMenu()
+        {
+            Console.Clear();
+            PrintAppInfo();
+            Console.WriteLine("Выберите один из пунктов меню:");
+            Console.WriteLine("1. Загрузить файл");
+            Console.WriteLine("2. Добавить запись в конец файла");
+            Console.WriteLine("3. Просмотр всех записей");
+            Console.WriteLine("4. Сохранить файл");
+            Console.WriteLine("5. Добавить запись перед выбранной записью");
+            Console.WriteLine("6. Удалить записи начиная с выбранной");
+            Console.WriteLine("7. Рассчет среднего значения");
+            Console.WriteLine("8. О программе");
+            Console.WriteLine("9. Выход");
+            Console.WriteLine();
         }
 
         /// <summary>
@@ -84,27 +105,49 @@ namespace OAiP_Var_31
 
             Console.Clear();
             Console.WriteLine("Добавление записи\n");
-            bankCollection.Collection.Add(EnterBankData());
+            Bank bank = EnterBankData();
+            bankCollection.Collection.Add(bank);
             Console.WriteLine("Запись успешно добавлена!");
             isFileModified = true;
             Print();
         }
 
         /// <summary>
-        /// Просмотр всех элементов массива.
+        /// Просмотр элементов массива.
         /// </summary>
-        public static void Print()
+        /// <param name="start">Начало диапазона. По умолчанию 0.</param>
+        /// <param name="end">Конец диапазона. По умолчанию равен количеству элементов массива.</param>
+        public static void Print(int start = 0, int end = -1)
         {
             if (!isLoaded()) return;
-            PrintLine();
-            PrintRow("Адрес", "Количество вкладчиков", "Сумма вкладов ");
-            foreach (var item in bankCollection.Collection)
+
+            if (start < 0)
+                start = 0;
+            if (start > bankCollection.Collection.Count)
+                start = bankCollection.Collection.Count;
+            if (end < 0 || end > bankCollection.Collection.Count)
+                end = bankCollection.Collection.Count;
+
+            PrintHeader();
+            for (int i = start; i < end; i++)
             {
+                PrintRow(i.ToString(),
+                    bankCollection.Collection.ElementAt(i).adress,
+                    bankCollection.Collection.ElementAt(i).depositorsNumber.ToString(),
+                    bankCollection.Collection.ElementAt(i).depositsSum.ToString());
                 PrintLine();
-                PrintRow(item.adress, item.depositorsNumber.ToString(), item.depositsSum.ToString());
             }
-            PrintLine();
             Console.ReadKey();
+        }
+
+        /// <summary>
+        /// Печать шапки таблицы.
+        /// </summary>
+        private static void PrintHeader()
+        {
+            PrintLine();
+            PrintRow("№", "Адрес", "Количество вкладчиков", "Сумма вкладов ");
+            PrintLine();
         }
 
         /// <summary>
@@ -159,17 +202,12 @@ namespace OAiP_Var_31
         }
 
         /// <summary>
-        /// Меню рассчета среднего на множестве тех элементов,
-        /// которые попадают в заданный диапазон по заданному полю.
+        /// Выбор параметра для которого необходимо расчитать среднее значение.
         /// </summary>
         public static void GetAvg()
         {
             if (!isLoaded()) return;
-            Console.Clear();
-            Console.WriteLine("Выберите параметр для расчета среднего значения:");
-            Console.WriteLine("1. Количество вкладчиков");
-            Console.WriteLine("2. Сумма вкладов");
-            Console.WriteLine("3. Назад");
+            PrintAVGMenu();
             switch (Console.ReadKey(true).Key)
             {
                 case ConsoleKey.D1:
@@ -186,11 +224,22 @@ namespace OAiP_Var_31
                 default:
                     break;
             }
-            Console.ReadLine();
         }
 
         /// <summary>
-        /// Вывоз соответствующего метода для вычисления среднего.
+        /// Вывод меню расчета среднего значения.
+        /// </summary>
+        private static void PrintAVGMenu()
+        {
+            Console.Clear();
+            Console.WriteLine("Выберите параметр для расчета среднего значения:");
+            Console.WriteLine("1. Количество вкладчиков");
+            Console.WriteLine("2. Сумма вкладов");
+            Console.WriteLine("3. Назад");
+        }
+
+        /// <summary>
+        /// Вызов соответствующего метода для вычисления среднего.
         /// </summary>
         /// <param name="param">Поле, по которому будет вычисляться среднеее.</param>
         private static void CalcAvg(string param)
@@ -330,15 +379,16 @@ namespace OAiP_Var_31
         /// <summary>
         /// Печать строки.
         /// </summary>
-        /// <param name="columns">Массив значений для печати.</param>
-        private static void PrintRow(string column1, string column2, string column3)
+        private static void PrintRow(string index, string column1, string column2, string column3)
         {
-            int width = (tableWidth - 3) / 3;
+            int columnWidth = (tableWidth - 3) / 3;
+            int indexWidth = bankCollection.Collection.Count.ToString().Length;
 
-            string row = string.Format("|{0}|{1}|{2}|",
-                AlignCentre(column1, width),
-                AlignCentre(column2, width),
-                AlignCentre(column3, width));
+            string row = string.Format("|{0}|{1}|{2}|{3}|",
+                AlignCentre(index, indexWidth),
+                AlignCentre(column1, columnWidth),
+                AlignCentre(column2, columnWidth),
+                AlignCentre(column3, columnWidth - indexWidth));
 
             Console.WriteLine(row);
         }
@@ -349,9 +399,9 @@ namespace OAiP_Var_31
         /// <param name="text">Текст.</param>
         /// <param name="width">Ширина столбцов таблицы.</param>
         /// <returns></returns>
-        private static string AlignCentre(string text, int width)
+        public static string AlignCentre(string text, int width)
         {
-            if(text.Length > width)
+            if (text.Length > width)
             {
                 text = text.Substring(0, width - 3) + "...";
             }
@@ -373,14 +423,14 @@ namespace OAiP_Var_31
         /// <param name="endIndex">Конец диапазона.</param>
         private static void CalcDepositorsSumAVG(int startIndex, int endIndex)
         {
-            PrintRange(startIndex, endIndex);
             decimal depositorsSumAVG = 0;
             int count = endIndex - startIndex + 1;
             for (int i = startIndex; i <= endIndex; i++)
             {
                 depositorsSumAVG += bankCollection.Collection.ElementAt(i).depositsSum / count;
             }
-            Console.WriteLine(string.Format("Средняя сумма вкладов: {0}", depositorsSumAVG));
+            Console.WriteLine(string.Format("\nСредняя сумма вкладов: {0:0.00}", depositorsSumAVG));
+            Print(startIndex, endIndex + 1);
         }
 
         /// <summary>
@@ -390,35 +440,14 @@ namespace OAiP_Var_31
         /// <param name="endIndex">Конец диапазона.</param>
         private static void CalcDepositorsNumberAVG(int startIndex, int endIndex)
         {
-            PrintRange(startIndex, endIndex);
             decimal depositorsNumberAVG = 0;
             int count = endIndex - startIndex + 1;
             for (int i = startIndex; i <= endIndex; i++)
             {
                 depositorsNumberAVG += bankCollection.Collection.ElementAt(i).depositorsNumber / (decimal)count;
             }
-            Console.WriteLine(string.Format("Среднее колчичество вкладчиков: {0}", depositorsNumberAVG));
-        }
-
-        /// <summary>
-        /// Печать заданного диапазона элеметонов.
-        /// </summary>
-        /// <param name="startIndex">Начало диапазона.</param>
-        /// <param name="endIndex">Конец диапазона.</param>
-        private static void PrintRange(int startIndex, int endIndex)
-        {
-            PrintLine();
-            PrintRow("Адрес", "Количество вкладчиков", "Сумма вкладов ");
-            for (int i = startIndex; i <= endIndex; i++)
-            {
-                PrintLine();
-                PrintRow(
-                    bankCollection.Collection.ElementAt(i).adress,
-                    bankCollection.Collection.ElementAt(i).depositorsNumber.ToString(),
-                    bankCollection.Collection.ElementAt(i).depositsSum.ToString() 
-                );
-            }
-            PrintLine();
+            Console.WriteLine(string.Format("\nСреднее колчичество вкладчиков: {0:0.00}", depositorsNumberAVG));
+            Print(startIndex, endIndex + 1);
         }
 
         /// <summary>
@@ -458,13 +487,26 @@ namespace OAiP_Var_31
         public static void About()
         {
             Console.Clear();
-            Console.WriteLine("<Банки города 1.0>");
+            PrintAppInfo();
             Console.WriteLine("Автор: студент группы 569 Наумовец Артем.");
             Console.WriteLine("БрГТУ, 2016.");
             Console.WriteLine();
             Console.WriteLine("Для продолжения нажмите любую клавишу...");
             if (Console.ReadKey(true).Key > 0)
                 return;
+        }
+
+        /// <summary>
+        /// Выводит название и версию программы.
+        /// </summary>
+        private static void PrintAppInfo()
+        {
+            string appInfo = string.Format("<{0} {1}>",
+                Assembly.GetExecutingAssembly().GetName().Name,
+                Assembly.GetExecutingAssembly().GetName().Version);
+            Console.SetCursorPosition((Console.WindowWidth - appInfo.Length) / 2, Console.CursorTop);
+            Console.WriteLine(appInfo);
+            Console.WriteLine();
         }
 
         /// <summary>

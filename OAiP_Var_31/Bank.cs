@@ -19,7 +19,7 @@ namespace OAiP_Var_31
         /// Количество вкладчиков
         /// </summary>
         [XmlElement("depositorsNumber")]
-        public Int64 depositorsNumber { get; set; }
+        public long depositorsNumber { get; set; }
 
         /// <summary>
         ///  Сумма вкладов
@@ -27,11 +27,11 @@ namespace OAiP_Var_31
         [XmlElement("depositsSum")]
         public decimal depositsSum { get; set; }
 
-        public Bank(string _adress, Int64 _depositorsNumber, decimal _depositsSum)
+        public Bank(string _adress, long _depositorsNumber, decimal _depositsSum)
         {
-            this.adress = _adress;
-            this.depositorsNumber = _depositorsNumber;
-            this.depositsSum = _depositsSum;
+            adress = _adress;
+            depositorsNumber = _depositorsNumber;
+            depositsSum = _depositsSum;
         }
 
         public Bank()
