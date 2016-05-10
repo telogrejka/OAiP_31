@@ -21,11 +21,11 @@ namespace OAiP_Var_31
         public static void CreateTestFile()
         {
             BankCollection bankCollection = new BankCollection();
-            bankCollection.Collection.Add(new Bank("Абсолютбанк", 2678, 500100360.16m));
-            bankCollection.Collection.Add(new Bank("БелВЭБ", 1610, 326171360.54m));
-            bankCollection.Collection.Add(new Bank("Идея Банк", 3830, 779211990.97m));
-            bankCollection.Collection.Add(new Bank("Приорбанк", 8124, 1555123125.12m));
-            bankCollection.Collection.Add(new Bank("Хоум Кредит Банк", 2519, 14131244.71m));
+            bankCollection.Collection.Add(new Bank("Абсолютбанк", 267, 5000.16m));
+            bankCollection.Collection.Add(new Bank("БелВЭБ", 161, 3261.54m));
+            bankCollection.Collection.Add(new Bank("Идея Банк", 380, 7792.97m));
+            bankCollection.Collection.Add(new Bank("Приорбанк", 824, 15551.12m));
+            bankCollection.Collection.Add(new Bank("Хоум Кредит Банк", 2519, 1413.71m));
 
             string fileData = BankCollection.Serialize(bankCollection);
             Console.WriteLine(fileData);
@@ -112,6 +112,7 @@ namespace OAiP_Var_31
         /// </summary>
         public static void SaveFile()
         {
+            if (!isLoaded()) return;
             string fileData = BankCollection.Serialize(bankCollection);
             File.WriteAllText(fileName, fileData);
             Console.WriteLine("Файл {0} сохранен.", fileName);
@@ -307,7 +308,7 @@ namespace OAiP_Var_31
         /// <summary>
         /// Проверка загружен ли файл в программу.
         /// </summary>
-        public static bool isLoaded()
+        private static bool isLoaded()
         {
             if (bankCollection == null)
             {
