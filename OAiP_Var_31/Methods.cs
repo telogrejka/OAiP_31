@@ -13,9 +13,6 @@ namespace OAiP_Var_31
         private static BankCollection bankCollection = null;
         private static string fileName = null;
         private static bool isFileModified = false;
-        private static string adress;
-        private static Int64 depositorsNumber;
-        private static decimal depositsSum;
         private static int tableWidth = 77;
 
         /// <summary>
@@ -46,13 +43,13 @@ namespace OAiP_Var_31
             bankCollection = BankCollection.Deserialize(fileData);
             if (bankCollection != null)
             {
-                Console.WriteLine(String.Format("Файл {0} загружен!\n", fileName));
+                Console.WriteLine(string.Format("Файл {0} загружен!\n", fileName));
                 isFileModified = false;
                 Print();
             }
             else
             {
-                Console.WriteLine(String.Format("Ошибка при чтении файла {0}", fileName));
+                Console.WriteLine(string.Format("Ошибка при чтении файла {0}", fileName));
                 Console.ReadLine();
             }
         }
@@ -61,19 +58,19 @@ namespace OAiP_Var_31
         /// Ввод пути к файлу.
         /// </summary>
         /// <returns>Путь к файлу.</returns>
-        public static string GetPath()
+        private static string GetPath()
         {
             Console.Write("Введите путь к файлу: ");
             fileName = Console.ReadLine();
-            if (String.IsNullOrEmpty(fileName))
+            if (string.IsNullOrEmpty(fileName))
             {
                 Console.WriteLine("Путь не указан.");
-                GetPath();
+                return GetPath();
             }
             if (!File.Exists(fileName))
             {
                 Console.WriteLine("Файл не существует.");
-                GetPath();
+                return GetPath();
             }
             return fileName;
         }
@@ -87,10 +84,7 @@ namespace OAiP_Var_31
 
             Console.Clear();
             Console.WriteLine("Добавление записи\n");
-
-            EnterRecordData();
-
-            bankCollection.Collection.Add(new Bank(adress, depositorsNumber, depositsSum));
+            bankCollection.Collection.Add(EnterBankData());
             Console.WriteLine("Запись успешно добавлена!");
             isFileModified = true;
             Print();
@@ -103,11 +97,11 @@ namespace OAiP_Var_31
         {
             if (!isLoaded()) return;
             PrintLine();
-            PrintRow(new string[3] { "Адрес", "Количество вкладчиков", "Сумма вкладов " });
+            PrintRow("Адрес", "Количество вкладчиков", "Сумма вкладов ");
             foreach (var item in bankCollection.Collection)
             {
                 PrintLine();
-                PrintRow(new string[3] { item.adress, item.depositorsNumber.ToString(), item.depositsSum.ToString() });
+                PrintRow(item.adress, item.depositorsNumber.ToString(), item.depositsSum.ToString());
             }
             PrintLine();
             Console.ReadKey();
@@ -121,8 +115,8 @@ namespace OAiP_Var_31
             string fileData = BankCollection.Serialize(bankCollection);
             File.WriteAllText(fileName, fileData);
             Console.WriteLine("Файл {0} сохранен.", fileName);
-            Console.ReadLine();
             isFileModified = false;
+            Console.ReadLine();
         }
 
         /// <summary>
@@ -134,12 +128,9 @@ namespace OAiP_Var_31
 
             Console.Clear();
             Console.WriteLine("Вставка записи.\n");
-            int index = 0;
-            EnterIndex(ref index);
-
-            EnterRecordData();
-
-            bankCollection.Collection.Insert(index, (new Bank(adress, depositorsNumber, depositsSum)));
+            int index = EnterIndex();
+            Bank bank = EnterBankData();
+            bankCollection.Collection.Insert(index, bank);
             Console.WriteLine("Запись успешно добавлена!");
             isFileModified = true;
             Print();
@@ -154,13 +145,13 @@ namespace OAiP_Var_31
 
             Console.Clear();
             Console.WriteLine("Удаление записей.\n");
-            int index = 0;
-            EnterIndex(ref index);
+            int index = EnterIndex();
             int count = bankCollection.Collection.Count() - index;
-            Console.WriteLine(String.Format("Внимание! Будут удалены все записи, начиная с {0}-й. Продолжить? y/n", index));
+            Console.WriteLine(string.Format("Внимание! Будут удалены все записи, начиная с {0}-й. Продолжить? y/n", index));
             if (Console.ReadKey(true).Key == ConsoleKey.Y)
             {
                 bankCollection.Collection.RemoveRange(index, count);
+                isFileModified = true;
                 Console.WriteLine("Записи удалены.");
                 Print();
             }
@@ -174,7 +165,7 @@ namespace OAiP_Var_31
         {
             if (!isLoaded()) return;
             Console.Clear();
-            Console.WriteLine("Выберите параметр для рассчета среднего значения:");
+            Console.WriteLine("Выберите параметр для расчета среднего значения:");
             Console.WriteLine("1. Количество вкладчиков");
             Console.WriteLine("2. Сумма вкладов");
             Console.WriteLine("3. Назад");
@@ -201,7 +192,7 @@ namespace OAiP_Var_31
         /// Вывоз соответствующего метода для вычисления среднего.
         /// </summary>
         /// <param name="param">Поле, по которому будет вычисляться среднеее.</param>
-        public static void CalcAvg(string param)
+        private static void CalcAvg(string param)
         {
             int startIndex = 0;
             int endIndex = 0;
@@ -225,80 +216,91 @@ namespace OAiP_Var_31
         /// Ввод с клавиатуры номера записи.
         /// </summary>
         /// <param name="index">Номер записи.</param>
-        public static void EnterIndex(ref int index)
+        private static int EnterIndex()
         {
-            Console.Write(String.Format("Введите номер записи (от 0 до {0}): ",
+            Console.Write(string.Format("Введите номер записи, перед которой будет вставлена новая (от 0 до {0}): ",
                 bankCollection.Collection.Count() - 1));
+            int index = 0;
             try
             {
                 index = Convert.ToInt32(Console.ReadLine());
                 if (index < 0 || index > bankCollection.Collection.Count() - 1)
                 {
                     Console.WriteLine("Введенный индекс находится за пределами возможного диапазона.");
-                    EnterIndex(ref index);
+                    return EnterIndex();
                 }
+                return index;
             }
             catch
             {
                 Console.WriteLine("Неверный формат.");
-                EnterIndex(ref index);
+                return EnterIndex();
             }
         }
 
         /// <summary>
         /// Ввод данных для одной записи.
         /// </summary>
-        public static void EnterRecordData()
+        private static Bank EnterBankData()
         {
-            EnterAdress();
-            EnterDepositorsNumber();
-            EnterDepositsSum();
+            string adress = EnterAdress();
+            long depositorsNumber = EnterDepositorsNumber();
+            decimal depositsSum = EnterDepositsSum();
+            return new Bank(adress, depositorsNumber, depositsSum);
         }
 
         /// <summary>
         /// Ввод адреса.
         /// </summary>
-        public static void EnterAdress()
+        private static string EnterAdress()
         {
             Console.Write("Адрес: ");
-            adress = Console.ReadLine();
+            string adress = Console.ReadLine();
             if (string.IsNullOrEmpty(adress))
             {
-                EnterAdress();
+                return EnterAdress();
+            }
+            else
+            {
+                return adress;
             }
         }
 
         /// <summary>
         /// Ввод количества вкладчиков.
         /// </summary>
-        public static void EnterDepositorsNumber()
+        private static long EnterDepositorsNumber()
         {
+            long depositorsNumber = 0;
             Console.Write("Количество вкладчиков: ");
             try
             {
                 depositorsNumber = Convert.ToInt64(Console.ReadLine());
+                return depositorsNumber;
             }
             catch
             {
                 Console.WriteLine("Неверный формат.");
-                EnterDepositorsNumber();
+                return EnterDepositorsNumber();
             }
         }
 
         /// <summary>
         /// Ввод суммы вкладов.
         /// </summary>
-        public static void EnterDepositsSum()
+        private static decimal EnterDepositsSum()
         {
+            decimal depositsSum = 0m;
             Console.Write("Сумма вкладов: ");
             try
             {
                 depositsSum = Convert.ToDecimal(Console.ReadLine(), new CultureInfo("en-US"));
+                return depositsSum;
             }
             catch
             {
                 Console.WriteLine("Неверный формат.");
-                EnterDepositsSum();
+                return EnterDepositsSum();
             }
         }
 
@@ -327,29 +329,31 @@ namespace OAiP_Var_31
         /// <summary>
         /// Печать строки.
         /// </summary>
-        /// <param name="columns">Массив полей.</param>
-        private static void PrintRow(params string[] columns)
+        /// <param name="columns">Массив значений для печати.</param>
+        private static void PrintRow(string column1, string column2, string column3)
         {
-            int width = (tableWidth - columns.Length) / columns.Length;
-            string row = "|";
+            int width = (tableWidth - 3) / 3;
 
-            foreach (string column in columns)
-            {
-                row += AlignCentre(column, width) + "|";
-            }
+            string row = string.Format("|{0}|{1}|{2}|",
+                AlignCentre(column1, width),
+                AlignCentre(column2, width),
+                AlignCentre(column3, width));
 
             Console.WriteLine(row);
         }
 
         /// <summary>
-        /// Выравнивание текста по центру.
+        /// Выравнивание текста по центру столбца.
         /// </summary>
         /// <param name="text">Текст.</param>
-        /// <param name="width">Ширина каждого столбца.</param>
+        /// <param name="width">Ширина столбцов таблицы.</param>
         /// <returns></returns>
         private static string AlignCentre(string text, int width)
         {
-            text = text.Length > width ? text.Substring(0, width - 3) + "..." : text;
+            if(text.Length > width)
+            {
+                text = text.Substring(0, width - 3) + "...";
+            }
 
             if (string.IsNullOrEmpty(text))
             {
@@ -366,16 +370,16 @@ namespace OAiP_Var_31
         /// </summary>
         /// <param name="startIndex">Начало диапазона.</param>
         /// <param name="endIndex">Конец диапазона.</param>
-        public static void CalcDepositorsSumAVG(int startIndex, int endIndex)
+        private static void CalcDepositorsSumAVG(int startIndex, int endIndex)
         {
             PrintRange(startIndex, endIndex);
             decimal depositorsSumAVG = 0;
             int count = endIndex - startIndex + 1;
             for (int i = startIndex; i <= endIndex; i++)
             {
-                depositorsSumAVG += bankCollection.Collection.ElementAt(i).depositsSum / (decimal)count;
+                depositorsSumAVG += bankCollection.Collection.ElementAt(i).depositsSum / count;
             }
-            Console.WriteLine(String.Format("Средняя сумма вкладов: {0}", depositorsSumAVG));
+            Console.WriteLine(string.Format("Средняя сумма вкладов: {0}", depositorsSumAVG));
         }
 
         /// <summary>
@@ -383,7 +387,7 @@ namespace OAiP_Var_31
         /// </summary>
         /// <param name="startIndex">Начало диапазона.</param>
         /// <param name="endIndex">Конец диапазона.</param>
-        public static void CalcDepositorsNumberAVG(int startIndex, int endIndex)
+        private static void CalcDepositorsNumberAVG(int startIndex, int endIndex)
         {
             PrintRange(startIndex, endIndex);
             decimal depositorsNumberAVG = 0;
@@ -392,7 +396,7 @@ namespace OAiP_Var_31
             {
                 depositorsNumberAVG += bankCollection.Collection.ElementAt(i).depositorsNumber / (decimal)count;
             }
-            Console.WriteLine(String.Format("Среднее колчичество вкладчиков: {0}", depositorsNumberAVG));
+            Console.WriteLine(string.Format("Среднее колчичество вкладчиков: {0}", depositorsNumberAVG));
         }
 
         /// <summary>
@@ -400,18 +404,18 @@ namespace OAiP_Var_31
         /// </summary>
         /// <param name="startIndex">Начало диапазона.</param>
         /// <param name="endIndex">Конец диапазона.</param>
-        public static void PrintRange(int startIndex, int endIndex)
+        private static void PrintRange(int startIndex, int endIndex)
         {
             PrintLine();
-            PrintRow(new string[3] { "Адрес", "Количество вкладчиков", "Сумма вкладов " });
+            PrintRow("Адрес", "Количество вкладчиков", "Сумма вкладов ");
             for (int i = startIndex; i <= endIndex; i++)
             {
                 PrintLine();
-                PrintRow(new string[3] {
+                PrintRow(
                     bankCollection.Collection.ElementAt(i).adress,
                     bankCollection.Collection.ElementAt(i).depositorsNumber.ToString(),
                     bankCollection.Collection.ElementAt(i).depositsSum.ToString() 
-                });
+                );
             }
             PrintLine();
         }
@@ -421,18 +425,18 @@ namespace OAiP_Var_31
         /// </summary>
         /// <param name="startIndex">Начало диапазона.</param>
         /// <param name="endIndex">Конец диапазона.</param>
-        public static void EnterRange(ref int startIndex, ref int endIndex)
+        private static void EnterRange(ref int startIndex, ref int endIndex)
         {
             try
             {
-                Console.Write(String.Format("Начало диапазона (от 0 до {0}): ", bankCollection.Collection.Count() - 1));
+                Console.Write(string.Format("Начало диапазона (от 0 до {0}): ", bankCollection.Collection.Count() - 1));
                 startIndex = Convert.ToInt32(Console.ReadLine());
                 if (startIndex < 0 || startIndex > bankCollection.Collection.Count() - 1)
                 {
                     Console.WriteLine("Введенный индекс находится за пределами возможного диапазона.");
                     EnterRange(ref startIndex, ref endIndex);
                 }
-                Console.Write(String.Format("Конец диапазона (от {0} до {1}): ", startIndex, bankCollection.Collection.Count() - 1));
+                Console.Write(string.Format("Конец диапазона (от {0} до {1}): ", startIndex, bankCollection.Collection.Count() - 1));
                 endIndex = Convert.ToInt32(Console.ReadLine());
                 if (endIndex < startIndex || endIndex > bankCollection.Collection.Count() - 1)
                 {
