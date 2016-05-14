@@ -29,7 +29,6 @@ namespace OAiP_Var_31
             bankCollection.Collection.Add(new Bank("Хоум Кредит Банк", 2519, 1413.71m));
 
             string fileData = BankCollection.Serialize(bankCollection);
-            Console.WriteLine(fileData);
             File.WriteAllText("brest.xml", fileData);
         }
 
@@ -47,7 +46,7 @@ namespace OAiP_Var_31
             Console.WriteLine("4. Сохранить файл");
             Console.WriteLine("5. Добавить запись перед выбранной записью");
             Console.WriteLine("6. Удалить записи начиная с выбранной");
-            Console.WriteLine("7. Рассчет среднего значения");
+            Console.WriteLine("7. Расчет среднего значения");
             Console.WriteLine("8. О программе");
             Console.WriteLine("9. Выход");
             Console.WriteLine();
@@ -102,7 +101,6 @@ namespace OAiP_Var_31
         public static void AddRecord()
         {
             if (!isLoaded()) return;
-
             Console.Clear();
             Console.WriteLine("Добавление записи\n");
             Bank bank = EnterBankData();
@@ -146,7 +144,7 @@ namespace OAiP_Var_31
         private static void PrintHeader()
         {
             PrintLine();
-            PrintRow("№", "Адрес", "Количество вкладчиков", "Сумма вкладов ");
+            PrintRow("№", "Адрес", "Количество вкладчиков", "Сумма вкладов");
             PrintLine();
         }
 
@@ -169,7 +167,6 @@ namespace OAiP_Var_31
         public static void InsertRecord()
         {
             if (!isLoaded()) return;
-
             Console.Clear();
             Console.WriteLine("Вставка записи.\n");
             int index = EnterIndex();
@@ -186,7 +183,6 @@ namespace OAiP_Var_31
         public static void DeleteRecords()
         {
             if (!isLoaded()) return;
-
             Console.Clear();
             Console.WriteLine("Удаление записей.\n");
             int index = EnterIndex();
@@ -446,7 +442,7 @@ namespace OAiP_Var_31
             {
                 depositorsNumberAVG += bankCollection.Collection.ElementAt(i).depositorsNumber / (decimal)count;
             }
-            Console.WriteLine(string.Format("\nСреднее колчичество вкладчиков: {0:0.00}", depositorsNumberAVG));
+            Console.WriteLine(string.Format("\nСреднее количество вкладчиков: {0:0.00}", depositorsNumberAVG));
             Print(startIndex, endIndex + 1);
         }
 
